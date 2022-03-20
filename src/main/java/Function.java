@@ -16,10 +16,14 @@ public class Function {
 
     public Function(String question) {
         this.question = question;
-        this.vars = 2;
+        this.vars = 2; //defines the number of variables in the equation
     }
 
-    public double q(double c[]) {
+    public int getVars() {
+        return vars;
+    }
+    
+    public double value(double c[]) {
         if (question.equals("a")) {
             return c[0] * c[0] + c[1] * c[1] - c[0] * c[1] - 4 * c[0] - c[1];
         } else if (question.equals("b")) {
@@ -27,15 +31,19 @@ public class Function {
         }
         return 1.0;
     }
-
-    public double penalty(double c[]) {
+    
+    //insert your constrain here,
+    //constraints are in the form of g(x) < 0
+    public double[] constraint(double c[]) {
         if (question.equals("b")) {
             double penalty = -10.0 * c[0] - 3.0 * c[1] + 25.0;
             if (penalty > 0) {
-                return penalty * penalty;
+                double[] return_double = {penalty * penalty};
+                return return_double;
             }
         }
-        return 0.0;
+        double[] return_double = {0.0};
+        return return_double;
     }
 
 }

@@ -21,26 +21,50 @@ public class ParticleSwarm {
     private Function f;
     private double rp;
     private int currentIterations = 0;
-
-    public ParticleSwarm(double max_velocity, Function f, double rp) {
+    private double coefficients[];
+    
+    public ParticleSwarm(int nparticles, double max_velocity, Function f){
+        this(nparticles, max_velocity, f, new double[] {0.7, 2.0, 2.0}, 0);
+    }
+    
+    public ParticleSwarm(int nparticles, double max_velocity, Function f, double[] coefficients){
+        this(nparticles, max_velocity, f, coefficients, 0);
+    }
+         
+    public ParticleSwarm(int nparticles, double max_velocity, Function f, double rp){
+        this(nparticles, max_velocity, f, new double[] {0.7, 2.0, 2.0}, rp);
+    }
+            
+    public ParticleSwarm(int nparticles, double max_velocity, Function f, double[] coefficients, double rp) {
         this.f = f;
         this.rp = rp;
-        for (int i = 0; i < 10; i++) {
-            double[] position = {randomDouble(-100.0, 100.0), randomDouble(-100.0, 100.0)};
-            double[] velocity = {randomDouble(-100.0, 100.0), randomDouble(-100.0, 100.0)};
+        int vars = f.getVars();
+        for (int i = 0; i < nparticles; i++) {
+            
+            double[] position = new double[vars];
+            for (double d : position){
+                d = randomDouble(-100.0, 100.0);
+            }
+            double[] velocity = new double[vars];
+            for (double d : velocity){
+                d = randomDouble(-100.0, 100.0);
+            }
             double[] r = {rand.nextDouble(), rand.nextDouble()};
-            particles.add(new Particle(position, velocity, f.q(position), max_velocity, r));
+            particles.add(new Particle(position, velocity, f.value(position), max_velocity, r, coefficients));
         }
-
     }
 
     private double[] update() {
-        double fBest = f.q(particles.get(0).getPoint());
+        double fBest = f.value(particles.get(0).getPoint());
         double[] gBest = particles.get(0).getPoint();
 
         for (Particle p : particles) {
             double[] getpoint = p.getPoint();
-            double pValue = f.q(getpoint) + rp * f.penalty(getpoint);
+            double pValue = f.value(getpoint);
+            
+            for (double d : f.constraint(getpoint)){
+                pValue += rp*d;
+            }
 
             if (pValue < fBest) {
                 fBest = pValue;
@@ -81,8 +105,8 @@ public class ParticleSwarm {
         }
 
         System.out.printf("Iterations: %d\n", currentIterations);
-        System.out.printf("Best Point: %f %f Value: %f\n", currentgBest[0], currentgBest[1], f.q(currentgBest));
-        System.out.printf("Constraint: %f\n", f.penalty(currentgBest));
+        System.out.printf("Best Point: %f %f Value: %f\n", currentgBest[0], currentgBest[1], f.value(currentgBest));
+        System.out.printf("Constraint: %f\n", f.constraint(currentgBest));
         return currentgBest;
 
     }

@@ -20,14 +20,14 @@ public class Main {
         Function fb = new Function("b");
 
         for (int i = 0; i < 5; i++) {
-            ParticleSwarm particleswarm = new ParticleSwarm(100.0, fa, 0);
+            ParticleSwarm particleswarm = new ParticleSwarm(30, 100.0, fa, 0);
             particleswarm.run(0.000001, 400);
         }
 
         System.out.println("");
 
         for (int i = 0; i < 5; i++) {
-            ParticleSwarm particleswarm = new ParticleSwarm(100.0, fb, 0);
+            ParticleSwarm particleswarm = new ParticleSwarm(30, 100.0, fb, 0);
             particleswarm.run(0.000001, 400);
         }
 
@@ -40,10 +40,10 @@ public class Main {
         while (tolerance > minTolerance && rp <= 20) {
 
             for (int j = 0; j < 20 && tolerance > minTolerance; j++) {
-                ParticleSwarm particleswarm = new ParticleSwarm(100.0, fb, rp);
+                ParticleSwarm particleswarm = new ParticleSwarm(30, 100.0, fb, rp);
 
                 point = particleswarm.run(0.000001, 400);
-                if (fb.penalty(point) < 0.00001) {
+                if (Particle.norm(fb.constraint(point)) < 0.00001) {
                     if (oldPoint != null) {
                         tolerance = 0.0;
                         for (int i = 0; i < 2; i++) {
@@ -62,7 +62,7 @@ public class Main {
         }
 
         System.out.printf("R value for penalty: %d\n", rp);
-        System.out.printf("Best Point: %f %f Value: %f\n", point[0], point[1], fb.q(point));
+        System.out.printf("Best Point: %f %f Value: %f\n", point[0], point[1], fb.value(point));
     }
 
 }
