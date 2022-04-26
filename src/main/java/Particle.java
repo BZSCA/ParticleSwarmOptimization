@@ -10,6 +10,8 @@
  */
 //Particle.java
 import java.lang.Math;
+import java.util.concurrent.TimeUnit;
+
 
 public class Particle{
 
@@ -34,19 +36,25 @@ public class Particle{
     }
 
     public void updatePosition(double[] gbest, Function f, double rp) {
+
+        int temp = 5;
+        for (int i = 0; i < 5000; i++){
+            temp = temp*temp*temp*temp;
+        }
+
         double[] velocity = {0, 0};
 
         for (int i = 0; i < dim; i++) {
             velocity[i] = coefficients[0] * this.previousVelocity[i] 
             + coefficients[1] * r[0] * (bestPosition[i] - position[i]) 
-            + coefficients[3] * r[1] * (gbest[i] - position[i]);
+            + coefficients[2] * r[1] * (gbest[i] - position[i]);
         }
 
-        double norm = this.norm(velocity);
+        double norm = Particle.norm(velocity);
 
-        if (norm > 100.0) {
+        if (norm > maxVelocity) {
             for (double v : velocity) {
-                v = (v / norm) * 100.0;
+                v = (v / norm) * maxVelocity;
             }
         }
 

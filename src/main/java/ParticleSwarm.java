@@ -12,16 +12,17 @@
 //ParticleSwarm.java
 import java.lang.Math;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class ParticleSwarm {
 
-    private ArrayList<Particle> particles = new ArrayList<>();
-    private Random rand = new Random();
-    private Function f;
-    private double rp;
+    private List<Particle> particles = new ArrayList<>();
+    private Random rand = new Random(100);
+    private final Function f;
+    private final double rp;
     private int currentIterations = 0;
-    private double coefficients[];
+    private final int vars; 
     
     public ParticleSwarm(int nparticles, double max_velocity, Function f){
         this(nparticles, max_velocity, f, new double[] {0.7, 2.0, 2.0}, 0);
@@ -38,16 +39,14 @@ public class ParticleSwarm {
     public ParticleSwarm(int nparticles, double max_velocity, Function f, double[] coefficients, double rp) {
         this.f = f;
         this.rp = rp;
-        int vars = f.getVars();
+        this.vars = f.getVars();
         for (int i = 0; i < nparticles; i++) {
             
             double[] position = new double[vars];
-            for (double d : position){
-                d = randomDouble(-100.0, 100.0);
-            }
             double[] velocity = new double[vars];
-            for (double d : velocity){
-                d = randomDouble(-100.0, 100.0);
+            for (int j = 0; j < vars; j++){
+                position[j] = randomDouble(-1000.0, 1000.0);
+                velocity[j] = randomDouble(-1000.0, 1000.0);
             }
             double[] r = {rand.nextDouble(), rand.nextDouble()};
             particles.add(new Particle(position, velocity, f.value(position), max_velocity, r, coefficients));
@@ -62,6 +61,8 @@ public class ParticleSwarm {
             double[] getpoint = p.getPoint();
             double pValue = f.value(getpoint);
             
+            //System.out.println(p);
+            
             for (double d : f.constraint(getpoint)){
                 pValue += rp*d;
             }
@@ -72,9 +73,9 @@ public class ParticleSwarm {
             }
         }
 
-        for (Particle p : particles) {
-            p.updatePosition(gBest, f, rp);
-        }
+        final double[] g = gBest;
+        particles.parallelStream().forEach(x -> x.updatePosition(g, f, rp));
+
         return gBest;
     }
 
@@ -85,13 +86,12 @@ public class ParticleSwarm {
         double[] currentgBest = {0, 0};
 
         while (currentTolerance > minTolerance && currentIterations < maxIterations - 1) {
-            //System.out.printf("Current Best Point: %.2f %.2f Value: %.2f\n",currentgBest[0], currentgBest[1], f.q(currentgBest));
-
             currentgBest = update();
-
             currentTolerance = 0.0;
-
-            for (int i = 0; i < 2; i++) {
+            
+            //System.out.printf("Current Best Point: %.2f %.2f Value: %.2f\n",currentgBest[0], currentgBest[1], f.value(currentgBest));
+            
+            for (int i = 0; i < this.vars; i++) {
                 currentTolerance += (previousgBest[i] - currentgBest[i]) * (previousgBest[i] - currentgBest[i]);
                 //System.out.printf("current tol: %f\n", currentTolerance);
             }
@@ -106,7 +106,7 @@ public class ParticleSwarm {
 
         System.out.printf("Iterations: %d\n", currentIterations);
         System.out.printf("Best Point: %f %f Value: %f\n", currentgBest[0], currentgBest[1], f.value(currentgBest));
-        System.out.printf("Constraint: %f\n", f.constraint(currentgBest));
+        //System.out.printf("Constraint: %f\n", f.constraint(currentgBest));
         return currentgBest;
 
     }

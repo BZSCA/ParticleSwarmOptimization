@@ -18,51 +18,14 @@ public class Main {
 
         Function fa = new Function("a");
         Function fb = new Function("b");
+        
+        final long startTime = System.currentTimeMillis();
+        ParticleSwarm particleswarm = new ParticleSwarm(10000, 100.0, fb, 0);
+        particleswarm.run(0.000001, 400);
+        final long endTime = System.currentTimeMillis();
 
-        for (int i = 0; i < 5; i++) {
-            ParticleSwarm particleswarm = new ParticleSwarm(30, 100.0, fa, 0);
-            particleswarm.run(0.000001, 400);
-        }
+        System.out.println("Total execution time: " + (endTime - startTime));
 
-        System.out.println("");
-
-        for (int i = 0; i < 5; i++) {
-            ParticleSwarm particleswarm = new ParticleSwarm(30, 100.0, fb, 0);
-            particleswarm.run(0.000001, 400);
-        }
-
-        double[] point = {0, 0, 0};
-        double[] oldPoint = null;
-        double minTolerance = 0.001;
-        double tolerance = 1.0;
-        int rp = 1;
-
-        while (tolerance > minTolerance && rp <= 20) {
-
-            for (int j = 0; j < 20 && tolerance > minTolerance; j++) {
-                ParticleSwarm particleswarm = new ParticleSwarm(30, 100.0, fb, rp);
-
-                point = particleswarm.run(0.000001, 400);
-                if (Particle.norm(fb.constraint(point)) < 0.00001) {
-                    if (oldPoint != null) {
-                        tolerance = 0.0;
-                        for (int i = 0; i < 2; i++) {
-                            tolerance += (point[i] - oldPoint[i]) * (point[i] - oldPoint[i]);
-                        }
-                        tolerance = Math.sqrt(tolerance);
-
-                        if (tolerance < minTolerance) {
-                            System.out.printf("Iterations: %d\n", particleswarm.getCurrentIterations());
-                        }
-                    }
-                    oldPoint = point;
-                }
-            }
-            rp++;
-        }
-
-        System.out.printf("R value for penalty: %d\n", rp);
-        System.out.printf("Best Point: %f %f Value: %f\n", point[0], point[1], fb.value(point));
     }
 
 }
