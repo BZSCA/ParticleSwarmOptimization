@@ -37,11 +37,6 @@ public class Particle{
 
     public void updatePosition(double[] gbest, Function f, double rp) {
 
-        int temp = 5;
-        for (int i = 0; i < 5000; i++){
-            temp = temp*temp*temp*temp;
-        }
-
         double[] velocity = {0, 0};
 
         for (int i = 0; i < dim; i++) {
